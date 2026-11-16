@@ -1,0 +1,21 @@
+parameters:
+    taint:
+        sinks:
+            methods:
+                GuzzleHttp\ClientInterface:
+                    request: {type: ssrf, parameters: [uri]}
+                    requestAsync: {type: ssrf, parameters: [uri]}
+                # shortcuts from ClientTrait
+                GuzzleHttp\Client:
+                    get: {type: ssrf, parameters: [uri]}
+                    head: {type: ssrf, parameters: [uri]}
+                    put: {type: ssrf, parameters: [uri]}
+                    post: {type: ssrf, parameters: [uri]}
+                    patch: {type: ssrf, parameters: [uri]}
+                    delete: {type: ssrf, parameters: [uri]}
+                    getAsync: {type: ssrf, parameters: [uri]}
+                    headAsync: {type: ssrf, parameters: [uri]}
+                    putAsync: {type: ssrf, parameters: [uri]}
+                    postAsync: {type: ssrf, parameters: [uri]}
+                    patchAsync: {type: ssrf, parameters: [uri]}
+                    deleteAsync: {type: ssrf, parameters: [uri]}

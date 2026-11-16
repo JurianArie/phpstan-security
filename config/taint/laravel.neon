@@ -53,6 +53,24 @@ parameters:
                     storePublicly: {type: path, parameters: [path]}
                     storeAs: {type: path, parameters: [path, name]}
                     storePubliclyAs: {type: path, parameters: [path, name]}
+                Illuminate\Http\Client\PendingRequest:
+                    baseUrl: {type: ssrf, parameters: [url]}
+                    get: {type: ssrf, parameters: [url]}
+                    head: {type: ssrf, parameters: [url]}
+                    post: {type: ssrf, parameters: [url]}
+                    patch: {type: ssrf, parameters: [url]}
+                    put: {type: ssrf, parameters: [url]}
+                    delete: {type: ssrf, parameters: [url]}
+                    send: {type: ssrf, parameters: [url]}
+                Illuminate\Support\Facades\Http:
+                    baseUrl: {type: ssrf, parameters: [url]}
+                    get: {type: ssrf, parameters: [url]}
+                    head: {type: ssrf, parameters: [url]}
+                    post: {type: ssrf, parameters: [url]}
+                    patch: {type: ssrf, parameters: [url]}
+                    put: {type: ssrf, parameters: [url]}
+                    delete: {type: ssrf, parameters: [url]}
+                    send: {type: ssrf, parameters: [url]}
                 Illuminate\Http\Response:
                     __construct: {type: html, parameters: [content]}
                 Illuminate\Database\ConnectionInterface:

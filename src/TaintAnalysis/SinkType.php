@@ -17,6 +17,7 @@ enum SinkType: string
     case Eval = 'eval';
     case XPath = 'xpath';
     case Ldap = 'ldap';
+    case Ssrf = 'ssrf';
 
     public function identifier(): string
     {
@@ -37,6 +38,7 @@ enum SinkType: string
             self::Eval => 'eval injection',
             self::XPath => 'XPath injection',
             self::Ldap => 'LDAP injection',
+            self::Ssrf => 'server-side request forgery (SSRF)',
         };
     }
 }

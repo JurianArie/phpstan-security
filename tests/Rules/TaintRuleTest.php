@@ -799,6 +799,24 @@ class TaintRuleTest extends RuleTestCase
         ]);
     }
 
+    public function testDetectsSsrf(): void
+    {
+        $this->analyse([__DIR__ . '/data/taint/ssrf.php'], [
+            [$this->getMessage(SinkType::Ssrf, 'Request::input()', 'GuzzleHttp\\ClientInterface::request()'), 13],
+            [$this->getMessage(SinkType::Ssrf, 'Request::input()', 'GuzzleHttp\\ClientInterface::requestAsync()'), 14],
+            [$this->getMessage(SinkType::Ssrf, 'Request::input()', 'GuzzleHttp\\Client::get()'), 15],
+            [$this->getMessage(SinkType::Ssrf, 'Request::input()', 'GuzzleHttp\\Client::post()'), 16],
+            [$this->getMessage(SinkType::Ssrf, 'Request::input()', 'GuzzleHttp\\Client::getAsync()'), 17],
+            [$this->getMessage(SinkType::Ssrf, 'Request::input()', 'GuzzleHttp\\ClientInterface::request()'), 18],
+            [$this->getMessage(SinkType::Ssrf, 'Request::input()', 'Illuminate\\Support\\Facades\\Http::get()'), 24],
+            [$this->getMessage(SinkType::Ssrf, 'Request::input()', 'Illuminate\\Support\\Facades\\Http::post()'), 25],
+            [$this->getMessage(SinkType::Ssrf, 'Request::input()', 'Illuminate\\Support\\Facades\\Http::send()'), 26],
+            [$this->getMessage(SinkType::Ssrf, 'Request::input()', 'Illuminate\\Support\\Facades\\Http::baseUrl()'), 27],
+            [$this->getMessage(SinkType::Ssrf, 'Request::input()', 'Illuminate\\Http\\Client\\PendingRequest::get()'), 28],
+            [$this->getMessage(SinkType::Ssrf, 'Request::input()', 'Illuminate\\Http\\Client\\PendingRequest::delete()'), 29],
+        ]);
+    }
+
     private function getMessage(SinkType $sinkType, string $source, string $sink): string
     {
         return sprintf(

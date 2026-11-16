@@ -28,6 +28,7 @@ in another file.
 | Template injection (SSTI)  | `tainted.eval`        | Laravel `Blade::render()`, `Blade::compileString()`                                                                               |
 | XPath injection            | `tainted.xpath`       | `DOMXPath::query()`, `DOMXPath::evaluate()`, `SimpleXMLElement::xpath()`, Symfony `Crawler::filterXPath()`, `Crawler::evaluate()` |
 | LDAP injection             | `tainted.ldap`        | `ldap_search()`, `ldap_list()`, `ldap_read()`, Symfony `LdapInterface::query()`                                                   |
+| SSRF                       | `tainted.ssrf`        | Guzzle `ClientInterface::request()`, `get()`, `post()`, ..., Laravel's `Http` facade and `PendingRequest`                         |
 
 User input is detected from:
 
