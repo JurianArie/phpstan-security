@@ -9,7 +9,9 @@ parametersSchema:
         sources: structure([
             variables: listOf(string()),
             methods: arrayOf(listOf(string())),
-            ?properties: listOf(string()),
+            ?properties: arrayOf(structure([
+                ?except: listOf(string()),
+            ])),
         ]),
         flows: structure([
             functions: arrayOf(structure([

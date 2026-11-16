@@ -37,7 +37,9 @@ User input is detected from:
   a `FormRequest`
 - Controller arguments that match a `{placeholder}` in a `#[Route]` attribute
 - Eloquent attributes (`$post->body`, `$post?->body`, `getAttribute()`, `getOriginal()`, `toArray()`, ...), since the
-  database holds stored user input: this catches second-order (stored) variants of every vulnerability above
+  database holds stored user input: this catches second-order (stored) variants of every vulnerability above. Keys
+  (`id`, `uuid`, `ulid`, `*_id`, `*_uuid`, `*_ulid`) and attributes with a safe `@property` type (`int`, `bool`, ...)
+  are skipped
 
 A value is no longer considered tainted when it:
 

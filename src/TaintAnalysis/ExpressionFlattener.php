@@ -72,7 +72,7 @@ final readonly class ExpressionFlattener
             ($expr instanceof PropertyFetch || $expr instanceof NullsafePropertyFetch)
             && $expr->name instanceof Identifier
         ) {
-            return $this->flattenPropertyFetch($expr->var, $expr->name, $scope);
+            return $this->flattenPropertyFetch($expr, $expr->var, $expr->name, $scope);
         }
 
         if ($expr instanceof Concat) {
@@ -180,8 +180,14 @@ final readonly class ExpressionFlattener
     /**
      * @return string[]
      */
-    private function flattenPropertyFetch(Expr $var, Identifier $name, Scope $scope): array
+    private function flattenPropertyFetch(Expr $fetch, Expr $var, Identifier $name, Scope $scope): array
     {
+        // A magic property's native type is always mixed, so trust its PHPDoc type (@property int $count): the
+        // column or cast enforces it.
+        if (!$this->canCarryTaint($scope->getType($fetch))) {
+            return [];
+        }
+
         $receiverType = TypeCombinator::intersect($scope->getType($var), new ObjectWithoutClassType());
 
         $nodes = [];

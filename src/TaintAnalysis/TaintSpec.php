@@ -8,12 +8,17 @@ use PHPStan\Reflection\ClassReflection;
 
 use function array_map;
 use function explode;
+use function fnmatch;
 use function sprintf;
 use function strtolower;
 
 /**
  * @phpstan-type TaintConfig array{
- *     sources: array{variables: string[], methods: array<string, string[]>, properties?: list<string>},
+ *     sources: array{
+ *         variables: string[],
+ *         methods: array<string, string[]>,
+ *         properties?: array<string, array{except?: list<string>}>,
+ *     },
  *     flows: array{functions: array<string, FlowConfig>},
  *     sinks: array{functions: array<string, SinkConfig>, methods: array<string, array<string, SinkConfig>>},
  * }
@@ -48,7 +53,8 @@ final readonly class TaintSpec
     private array $methodSinks;
 
     /**
-     * @var list<string> classes whose undeclared (magic) properties hold user data
+     * @var array<string, list<string>> classes whose undeclared (magic) properties hold user data, with the
+     *      property name patterns that don't
      */
     private array $sourceProperties;
 
@@ -60,7 +66,10 @@ final readonly class TaintSpec
         $sourceMethods = $functionFlows = $methodSinks = $functionSinks = [];
 
         $this->sourceVariables = $config['sources']['variables'];
-        $this->sourceProperties = $config['sources']['properties'] ?? [];
+        $this->sourceProperties = array_map(
+            fn(array $properties) => $properties['except'] ?? [],
+            $config['sources']['properties'] ?? []
+        );
 
         foreach ($config['sources']['methods'] as $class => $methods) {
             foreach ($methods as $method) {
@@ -106,10 +115,18 @@ final readonly class TaintSpec
 
     public function getPropertySource(ClassReflection $class, string $property): ?string
     {
-        foreach ($this->sourceProperties as $className) {
-            if ($class->is($className)) {
-                return sprintf('%s->%s', self::getShortName($class->getName()), $property);
+        foreach ($this->sourceProperties as $className => $except) {
+            if (!$class->is($className)) {
+                continue;
             }
+
+            foreach ($except as $pattern) {
+                if (fnmatch($pattern, $property)) {
+                    return null;
+                }
+            }
+
+            return sprintf('%s->%s', self::getShortName($class->getName()), $property);
         }
 
         return null;
