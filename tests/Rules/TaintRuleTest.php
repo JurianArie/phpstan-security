@@ -758,6 +758,16 @@ class TaintRuleTest extends RuleTestCase
         ]);
     }
 
+    public function testDetectsLaravelStoredValues(): void
+    {
+        $this->analyse([__DIR__ . '/data/taint/laravel_eloquent.php'], [
+            [$this->getMessage(SinkType::Html, 'Article->body', 'new Illuminate\Http\Response()'), 16],
+            [$this->getMessage(SinkType::Html, 'Article->body', 'new Illuminate\Http\Response()'), 17],
+            [$this->getMessage(SinkType::Html, 'Model::getAttribute()', 'new Illuminate\Http\Response()'), 18],
+            [$this->getMessage(SinkType::Sql, 'Model::getOriginal()', 'Illuminate\\Support\\Facades\\DB::select()'), 19],
+        ]);
+    }
+
     public function testDetectsLaravelFacades(): void
     {
         $this->analyse([__DIR__ . '/data/taint/laravel_facades.php'], [

@@ -12,6 +12,8 @@ use PhpParser\Node\Expr\CallLike;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\Match_;
 use PhpParser\Node\Expr\MethodCall;
+use PhpParser\Node\Expr\NullsafePropertyFetch;
+use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\Ternary;
 use PhpParser\Node\Expr\Variable;
@@ -64,6 +66,13 @@ final readonly class ExpressionFlattener
 
         if ($expr instanceof ArrayDimFetch) {
             return $this->flatten($expr->var, $scope);
+        }
+
+        if (
+            ($expr instanceof PropertyFetch || $expr instanceof NullsafePropertyFetch)
+            && $expr->name instanceof Identifier
+        ) {
+            return $this->flattenPropertyFetch($expr->var, $expr->name, $scope);
         }
 
         if ($expr instanceof Concat) {
@@ -159,6 +168,30 @@ final readonly class ExpressionFlattener
 
         foreach ($receiverType->getObjectClassReflections() as $class) {
             $source = $this->taintSpec->getMethodSource($class, $name->toString());
+
+            if ($source !== null) {
+                $nodes[] = TaintNode::source($source)->toString();
+            }
+        }
+
+        return $nodes;
+    }
+
+    /**
+     * @return string[]
+     */
+    private function flattenPropertyFetch(Expr $var, Identifier $name, Scope $scope): array
+    {
+        $receiverType = TypeCombinator::intersect($scope->getType($var), new ObjectWithoutClassType());
+
+        $nodes = [];
+
+        foreach ($receiverType->getObjectClassReflections() as $class) {
+            if ($class->hasNativeProperty($name->toString())) {
+                continue;
+            }
+
+            $source = $this->taintSpec->getPropertySource($class, $name->toString());
 
             if ($source !== null) {
                 $nodes[] = TaintNode::source($source)->toString();

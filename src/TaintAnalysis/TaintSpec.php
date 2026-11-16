@@ -13,7 +13,7 @@ use function strtolower;
 
 /**
  * @phpstan-type TaintConfig array{
- *     sources: array{variables: string[], methods: array<string, string[]>},
+ *     sources: array{variables: string[], methods: array<string, string[]>, properties?: list<string>},
  *     flows: array{functions: array<string, FlowConfig>},
  *     sinks: array{functions: array<string, SinkConfig>, methods: array<string, array<string, SinkConfig>>},
  * }
@@ -48,6 +48,11 @@ final readonly class TaintSpec
     private array $methodSinks;
 
     /**
+     * @var list<string> classes whose undeclared (magic) properties hold user data
+     */
+    private array $sourceProperties;
+
+    /**
      * @param TaintConfig $config
      */
     public function __construct(array $config)
@@ -55,6 +60,7 @@ final readonly class TaintSpec
         $sourceMethods = $functionFlows = $methodSinks = $functionSinks = [];
 
         $this->sourceVariables = $config['sources']['variables'];
+        $this->sourceProperties = $config['sources']['properties'] ?? [];
 
         foreach ($config['sources']['methods'] as $class => $methods) {
             foreach ($methods as $method) {
@@ -92,6 +98,17 @@ final readonly class TaintSpec
         foreach ($this->sourceMethods as $className => $methods) {
             if (isset($methods[strtolower($method)]) && $class->is($className)) {
                 return $methods[strtolower($method)];
+            }
+        }
+
+        return null;
+    }
+
+    public function getPropertySource(ClassReflection $class, string $property): ?string
+    {
+        foreach ($this->sourceProperties as $className) {
+            if ($class->is($className)) {
+                return sprintf('%s->%s', self::getShortName($class->getName()), $property);
             }
         }
 

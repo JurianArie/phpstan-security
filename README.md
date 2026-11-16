@@ -36,6 +36,8 @@ User input is detected from:
 - Laravel's `Request` and its facade (`input()`, `query()`, `all()`, `header()`, ...), and `validated()` and `safe()` on
   a `FormRequest`
 - Controller arguments that match a `{placeholder}` in a `#[Route]` attribute
+- Eloquent attributes (`$post->body`, `$post?->body`, `getAttribute()`, `getOriginal()`, `toArray()`, ...), since the
+  database holds stored user input: this catches second-order (stored) variants of every vulnerability above
 
 A value is no longer considered tainted when it:
 
